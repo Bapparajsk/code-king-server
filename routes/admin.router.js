@@ -1,10 +1,14 @@
 const router = require('express').Router();
 const problemModel = require('../model/problem.schema')
 const { createToken } = require("../middleware/token");
+const { adminAuth } = require("../middleware/authentication");
+
+//   --> /admin/singin
 router.post('/singin', async (req, res) => {
     try {
-        const { key, value } = req.body;
-        if (key !== process.env.ADMIN_KEY || value !== process.env.ADMIN_VALUE) {
+        const { keyName, key } = req.body;
+        console.log(keyName, key);
+        if (keyName !== process.env.ADMIN_KEY || key !== process.env.ADMIN_VALUE) {
             return res.status(500).json({
                 type: 'unsuccessful',
                 massage: 'invalid key and value'
@@ -13,7 +17,6 @@ router.post('/singin', async (req, res) => {
 
         const token = createToken();
         const problems = await problemModel.find({});
-        console.log(key , value);
         return res.status(200).json({
             type: 'successful',
             massage: 'singin successful',
@@ -31,6 +34,6 @@ router.post('/singin', async (req, res) => {
         });
 
     }
-})
+});
 
 module.exports = router;

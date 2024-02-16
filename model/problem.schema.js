@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const string_decoder = require("string_decoder");
 
 const schema = new Schema({
     number : {
@@ -22,6 +23,14 @@ const schema = new Schema({
     constraints : {
         type: [],
         require: true,
+    },
+    tagName: {
+        type: [],
+        require: true
+    },
+    difficulty : {
+        type: String,
+        require: true
     }
 });
 

@@ -1,9 +1,9 @@
-const updateFile = ({ number, hading, statement, example, constraints }) => {
+const updateFile = ({  hading, tagName, statement, example, difficulty, constraints }) => {
     const updateFields = {};
 
     // Add properties to updateFields if they are present in the request body
-    if (number) {
-        updateFields.number = number;
+    if (tagName) {
+        updateFields.tagName = tagName;
     }
     if (hading) {
         updateFields.hading = hading;
@@ -13,6 +13,9 @@ const updateFile = ({ number, hading, statement, example, constraints }) => {
     }
     if (example) {
         updateFields.example = example;
+    }
+    if (difficulty) {
+        updateFields.difficulty = difficulty;
     }
     if (constraints) {
         updateFields.constraints = constraints;

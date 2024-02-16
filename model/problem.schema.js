@@ -1,5 +1,4 @@
 const { Schema, model } = require('mongoose');
-const string_decoder = require("string_decoder");
 
 const schema = new Schema({
     number : {

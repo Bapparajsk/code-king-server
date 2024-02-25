@@ -8,4 +8,8 @@ const createToken = () => {
     return JWT.sign(payload, process.env.ADMIN_SEXRET_KEY, { expiresIn: "4h"});
 }
 
-module.exports = { createToken }
+const createTokenInUser = (user) => {
+    return JWT.sign(user, process.env.USER_SEXRET_KEY, { expiresIn: "30d" });
+}
+
+module.exports = { createToken, createTokenInUser }

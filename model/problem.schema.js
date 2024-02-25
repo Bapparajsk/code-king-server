@@ -30,6 +30,10 @@ const schema = new Schema({
     difficulty : {
         type: String,
         require: true
+    },
+    totalSolver: {
+        type: String,
+        default: 0
     }
 });
 

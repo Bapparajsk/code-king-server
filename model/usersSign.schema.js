@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose');
 
 const schema = new Schema({
-    userName: {
+    user_name: {
         type: String,
         require: true,
         minLength: 5
@@ -14,9 +14,13 @@ const schema = new Schema({
     password: {
         type: String,
         require: true
+    },
+    date: {
+        type: Date,
+        default: Date.now()
     }
 });
 
-const useModel = model('usesSing', schema);
+const userModel = model('usesSing', schema);
 
-module.exports = useModel;
+module.exports = userModel;

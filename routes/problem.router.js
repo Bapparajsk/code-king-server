@@ -8,14 +8,22 @@ const problemModel = require('../model/problem.schema');
 router.get('/get-all', auth, async (req, res) => {
     try{
         const allProblems = await problemModel.find({});
-        const problem = allProblems.map((item) => {
-            return {
-                number: item.number,
-                hading: item.hading,
-                difficulty: item.difficulty,
-                totalSolver: item.totalSolver
-            }
-        })
+        const problem = { problemList: [], NameOfTotalProblem: { Easy: 0, Medium: 0, Hard: 0, }};
+
+        for (let prob of allProblems) {
+            const { number, hading, difficulty, totalSolver } = prob;
+
+            problem.problemList.push({
+                number: number,
+                hading: hading,
+                difficulty: difficulty,
+                totalSolver: totalSolver
+            });
+
+            const num = problem.NameOfTotalProblem[difficulty];
+            problem.NameOfTotalProblem[difficulty] = num + 1;
+        }
+
         return res.status(200).json({
             type: 'successful',
             length: problem.length,

@@ -42,10 +42,18 @@ const schema = new Schema({
         type: String,
         required: true
     },
+    email: {
+        type: String,
+        unique: true,
+    },
     profile_image: {
         data: Buffer,
         contentType: String,
         default: { data: Buffer.alloc(0) }, // Initial default value
+    },
+    county: {
+        type: String,
+        default: ''
     },
     about_me: {
         type: String,
@@ -53,7 +61,7 @@ const schema = new Schema({
     },
     student_professional: {
         type: String,
-        default: 'Student'
+        default: ''
     },
     problem_difficulty: {
         type: difficultyName,
@@ -75,6 +83,10 @@ const schema = new Schema({
     solve_problem_number: {
         type: [{}],
         default: [{}]
+    },
+    cursor: {
+        type: Boolean,
+        default: true
     }
 });
 

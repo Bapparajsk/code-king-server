@@ -1,17 +1,16 @@
 const router = require('express').Router();
-const { auth, hashPassword, comparePassword } = require("../middleware/authentication");
+const { hashPassword, comparePassword } = require("../middleware/authentication");
 const { isValidEmail } = require('../middleware/function');
 const userModel = require('../model/usersSign.schema');
 const userDetailsModel = require('../model/userDetails.schema');
 const { createTokenInUser } = require('../middleware/token');
-const bcrypt = require('bcryptjs');
 
 /*  /api/user/sign-up  --> this route new user create */
 
 router.post('/sign-up', async (req, res) => {
     try {
         const { userName, email, password } = req.body;
-
+        console.log(userName, email, password);
         if (!userName || !email || !password || !isValidEmail(email)) {
             return res.status(401).json({
                 type: 'error',
@@ -36,7 +35,8 @@ router.post('/sign-up', async (req, res) => {
 
         const newUserDetails = await userDetailsModel.create({
             user_ID: newUser._id,
-            user_name: newUser.user_name
+            user_name: newUser.user_name,
+            email: newUser.email,
         });
 
         const userToken = createTokenInUser({ userName, _id: newUser._id });
@@ -89,6 +89,49 @@ router.post('/sign-in', async (req, res) => {
             userDetails: useDetails
         });
 
+    } catch (error) {
+        console.log('internal server Error :- ', error);
+        return res.status(500).json({
+            type: 'error',
+            message: 'internal server Error'
+        });
+    }
+});
+
+/*  /api/user/email  --> this route check email exgist or not */
+
+router.get('/is-valid/:name', async (req, res) => {
+    try {
+        const name = req.params.name;
+        let isEmail = false;
+        if (isValidEmail(name)) {
+            isEmail = true;
+        }
+
+        console.log(name)
+        if (!name) {
+            return res.status(401).json({
+                type: 'error',
+                message: 'email is empty!'
+            });
+        }
+        let user;
+        if (isEmail) {
+            user = await userModel.findOne({email: name});
+        } else {
+            user = await userModel.findOne({user_name: name});
+        }
+        if (user) {
+            return res.status(200).json({
+                type: 'successful',
+                message: 'exists'
+            });
+        }
+
+        return res.status(200).json({
+            type: 'successful',
+            message: 'not exists'
+        });
     } catch (error) {
         console.log('internal server Error :- ', error);
         return res.status(500).json({

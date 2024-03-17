@@ -10,7 +10,6 @@ const { createTokenInUser } = require('../middleware/token');
 router.post('/sign-up', async (req, res) => {
     try {
         const { userName, email, password } = req.body;
-        console.log(userName, email, password);
         if (!userName || !email || !password || !isValidEmail(email)) {
             return res.status(401).json({
                 type: 'error',
@@ -37,6 +36,13 @@ router.post('/sign-up', async (req, res) => {
             user_ID: newUser._id,
             user_name: newUser.user_name,
             email: newUser.email,
+            problems_status: {
+                accepted: new Set(),
+                wrongAnswer: new Set(),
+                runtimeError: new Set(),
+                timeLimitExceeded: new Set(),
+                notAttempted: new Set(),
+            }
         });
 
         const userToken = createTokenInUser({ userName, _id: newUser._id });
@@ -45,7 +51,8 @@ router.post('/sign-up', async (req, res) => {
             type: 'successful',
             message: 'new user created',
             token: userToken,
-            userDetail: newUserDetails
+            userDetail: newUserDetails,
+            problemsStatus: newUserDetails.problems_status
         });
 
     } catch (error) {
@@ -86,7 +93,8 @@ router.post('/sign-in', async (req, res) => {
             type: 'successful',
             message: 'new user created',
             token: userToken,
-            userDetails: useDetails
+            userDetails: useDetails,
+            problemsStatus: useDetails.problems_status
         });
 
     } catch (error) {
@@ -103,18 +111,15 @@ router.post('/sign-in', async (req, res) => {
 router.get('/is-valid/:name', async (req, res) => {
     try {
         const name = req.params.name;
-        let isEmail = false;
-        if (isValidEmail(name)) {
-            isEmail = true;
-        }
+        let isEmail = isValidEmail(name);
 
-        console.log(name)
         if (!name) {
             return res.status(401).json({
                 type: 'error',
                 message: 'email is empty!'
             });
         }
+
         let user;
         if (isEmail) {
             user = await userModel.findOne({email: name});

@@ -6,7 +6,7 @@ const router = require('express').Router();
 router.get('/', auth, async (req, res) => {
     try {
         const user_ID = new Types.ObjectId(req.user._id);
-        const User = await userDetailsModel.findOne({user_ID})
+        const User = await userDetailsModel.findOne({user_ID});
 
         if (!User) {
             return res.status(401).json({
@@ -14,11 +14,12 @@ router.get('/', auth, async (req, res) => {
                 massage: 'invalid token'
             });
         }
-
+        console.log(User)
         return res.status(200).json({
             type: 'successful',
             message: 'user found',
-            userDetails: User
+            userDetails: User,
+            problemsStatus: User.problems_status
         });
     } catch (error) {
         console.log('internal server Error :- ', error);
@@ -28,6 +29,5 @@ router.get('/', auth, async (req, res) => {
         });
     }
 })
-
 
 module.exports = router;

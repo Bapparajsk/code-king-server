@@ -7,14 +7,14 @@ const { updateFile } = require('../middleware/updateFile');
 //  /admin/problem/add-problem
 router.post('/add-problem', adminAuth, async (req, res) => {
     try {
-        const { number, hading, statement, example, constraints, tagName, difficulty } = req.body;
-        const newProblem = new problemModel({ number, hading, statement, example, constraints, tagName, difficulty });
+        const { number, hading, statement, example, constraints, tagName, difficulty, category } = req.body;
+        const newProblem = new problemModel({ number, hading, statement, example, constraints, tagName, difficulty, category});
         const saveProblem = await newProblem.save();
         return res.status(201).json({
             type: 'successful',
             massage: 'new problem add successful',
             problem: saveProblem
-        })
+        });
     } catch (error) {
         console.log('internal server error :- ', error);
         return res.status(500).json({

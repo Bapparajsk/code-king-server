@@ -49,7 +49,7 @@ const schema = new Schema({
     profile_image: {
         data: Buffer,
         contentType: String,
-        default: { data: Buffer.alloc(0) }, // Initial default value
+        default: { data: Buffer.alloc(0) },
     },
     county: {
         type: String,
@@ -76,17 +76,12 @@ const schema = new Schema({
         type: languageName,
         default: { java: 0, python: 0, cpp: 0, c: 0, javaScript: 0 }
     },
-    solve_problem_list: {
-        type: [{}],
-        default: [{}]
-    },
-    solve_problem_number: {
-        type: [{}],
-        default: [{}]
-    },
     cursor: {
         type: Boolean,
         default: true
+    },
+    problems_status: {
+        type: {}
     }
 });
 

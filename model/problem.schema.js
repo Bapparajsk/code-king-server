@@ -34,6 +34,10 @@ const schema = new Schema({
     totalSolver: {
         type: String,
         default: 0
+    },
+    category: {
+        type: [],
+        require: true
     }
 });
 

@@ -14,7 +14,6 @@ router.get('/', auth, async (req, res) => {
                 massage: 'invalid token'
             });
         }
-        console.log(User)
         return res.status(200).json({
             type: 'successful',
             message: 'user found',

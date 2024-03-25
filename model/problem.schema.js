@@ -35,8 +35,8 @@ const schema = new Schema({
         type: String,
         default: 0
     },
-    category: {
-        type: [],
+    codeDetails: {
+        type: {},
         require: true
     }
 });

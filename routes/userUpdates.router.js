@@ -33,6 +33,47 @@ router.patch('/user-details', auth, async (req, res) => {
             massage: 'internal server error'
         });
     }
-})
+});
+
+router.patch('/problem/submission', auth, async (req, res) => {
+    try {
+        const { problemNumber, massage } = req.body;
+
+        if (!problemNumber || !massage) {
+            return res.status(400).json({
+                type: 'error',
+                massage: 'No update fields provided'
+            });
+        }
+
+        const user = req.user;
+        const userFindById = await userDetailsModel.findOne({user_ID: new Types.ObjectId(user._id)});
+
+        if (!userFindById) {
+            return res.status(400).json({
+                type: 'error',
+                massage: 'user not found!'
+            });
+        }
+
+        const updatedUser = await userDetailsModel.findOneAndUpdate(
+            { user_ID: new Types.ObjectId(user._id) },
+            { $push: { [`problem_submissions_logs.${problemNumber}`]: massage } },
+            { new: true }
+        );
+
+        return res.status(200).json({
+            type: 'ok',
+            massage: 'submission update successfully',
+        });
+
+    } catch (error) {
+        console.log('internal server error :- ', error);
+        return res.status(500).json({
+            type: 'error',
+            massage: 'internal server error'
+        });
+    }
+});
 
 module.exports = router;

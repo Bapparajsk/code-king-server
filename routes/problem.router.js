@@ -11,8 +11,9 @@ router.get('/get-all', auth, async (req, res) => {
         const problem = { problemList: [], NameOfTotalProblem: { Easy: 0, Medium: 0, Hard: 0, }};
 
         for (let prob of allProblems) {
-            const { number, hading, difficulty, totalSolver, tagName } = prob;
+            const { number, hading, difficulty, totalSolver, tagName, _id } = prob;
             problem.problemList.push({
+                id: _id,
                 number: number,
                 hading: hading,
                 difficulty: difficulty,

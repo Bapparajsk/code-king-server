@@ -37,11 +37,8 @@ router.post('/sign-up', async (req, res) => {
             user_name: newUser.user_name,
             email: newUser.email,
             problems_status: {
-                accepted: new Set(),
-                wrongAnswer: new Set(),
-                runtimeError: new Set(),
-                timeLimitExceeded: new Set(),
-                notAttempted: new Set(),
+                Solved: new Set(),
+                Attempted: new Set(),
             }
         });
 

@@ -27,6 +27,71 @@ router.get('/', auth, async (req, res) => {
             message: 'internal server Error'
         });
     }
-})
+});
+
+router.get('/submissions', auth, async (req, res) => {
+    try {
+        const id = req.query.id;
+        if (!id) {
+            return res.status(500).json({
+                type: 'error',
+                message: 'id not found'
+            });
+        }
+
+        const user_ID = new Types.ObjectId(req.user._id);
+        const User = await userDetailsModel.findOne({user_ID});
+
+        if (!User) {
+            return res.status(401).json({
+                type: 'unauthorized',
+                massage: 'invalid token'
+            });
+        }
+
+        const { problem_submissions_logs } = User;
+
+        const logs = problem_submissions_logs[id] === undefined ? [] : problem_submissions_logs[id];
+        console.log(logs);
+        return res.status(200).json({
+            type: 'successful',
+            message: 'user found',
+            submissions: logs,
+        });
+
+    } catch (error) {
+        console.log('internal server Error :- ', error);
+        return res.status(500).json({
+            type: 'error',
+            message: 'internal server Error'
+        });
+    }
+});
+
+router.get('/get-solve-problem-id', auth, async (req, res) => {
+    try {
+        const user_ID = new Types.ObjectId(req.user._id);
+        const User = await userDetailsModel.findOne({user_ID});
+
+        if (!User) {
+            return res.status(401).json({
+                type: 'unauthorized',
+                massage: 'invalid token'
+            });
+        }
+        return res.status(200).json({
+            type: 'successful',
+            message: 'user found',
+            problemsStatus: User.problems_status,
+        });
+
+    } catch (error) {
+        console.log('internal server Error :- ', error);
+        return res.status(500).json({
+            type: 'error',
+            message: 'internal server Error'
+        });
+    }
+});
 
 module.exports = router;

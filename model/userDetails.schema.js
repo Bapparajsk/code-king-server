@@ -81,7 +81,11 @@ const schema = new Schema({
         default: true
     },
     problems_status: {
-        type: {}
+        type: {},
+    },
+    problem_submissions_logs: {
+        type: {},
+        default: {},
     }
 });
 

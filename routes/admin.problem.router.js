@@ -11,7 +11,7 @@ router.post('/add-problem', adminAuth, async (req, res) => {
         console.log("codeDetails", codeDetails);
         const newProblem = new problemModel({ number, hading, statement, example, constraints, tagName, difficulty, codeDetails});
         const saveProblem = await newProblem.save();
-        // console.log(saveProblem);
+
         return res.status(201).json({
             type: 'successful',
             massage: 'new problem add successful',

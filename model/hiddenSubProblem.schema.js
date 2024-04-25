@@ -5,7 +5,18 @@ const schema = new Schema({
         type: Types.ObjectId,
         require: true
     },
+    main_code: {
+        type: String,
+    },
+    code: {
+        type: String,
+        require: true
+    },
     sub_problem: {
+        type: [],
+        default: []
+    },
+    sub_solution: {
         type: [],
         default: []
     }

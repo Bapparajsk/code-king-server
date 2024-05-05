@@ -59,24 +59,31 @@ router.post('/run-code', auth, async (req, res) => {
             }
         )
 
-        const { problem_difficulty, problems_status } = User;
-        const { difficulty } = currentProblem;
+        const { problem_difficulty, problems_status, problem_submissions_logs, user_submissions_logs } = User;
+        const { difficulty, number, hading } = currentProblem;
         const { Solved, Attempted } = problems_status;
 
+        if (!problem_submissions_logs[problemId]) {
+            problem_submissions_logs[problemId] = [];
+        }
+
+        const date = new Date();
+
+        const userSubmitLog = {
+            id: number,
+            name: hading,
+            date: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
+        };
+
         if (result.data.type === 'wrong') {
-            await userDetailsModel.findOneAndUpdate(
-                { user_ID },
-                { $push: { [`problem_submissions_logs.${problemId}`]: 'wrong', }},
-            );
+            problem_submissions_logs[problemId].push('wrong');
 
             if (!Solved[problemId]) {
                 Attempted[problemId] = true;
             }
+            userSubmitLog["isSolve"] = false;
         } else {
-            await userDetailsModel.findOneAndUpdate(
-                { user_ID },
-                { $push: { [`problem_submissions_logs.${problemId}`]: 'success', }},
-            );
+            problem_submissions_logs[problemId].push('success');
             if (Attempted[problemId]) {
                 delete Attempted[problemId];
             }
@@ -92,12 +99,14 @@ router.post('/run-code', auth, async (req, res) => {
                 }
 
             }
-            console.log("problemId", problemId)
             Solved[problemId] = true;
+            userSubmitLog["isSolve"] = true;
         }
+        user_submissions_logs.push(userSubmitLog);
 
         await User.updateOne({problems_status}, {$set: {Solved, Attempted}});
-
+        await User.updateOne({problem_submissions_logs}, {$set: {problem_submissions_logs}});
+        // await User.updateOne({user_submissions_logs}, {$set: {user_submissions_logs}});
         await User.save();
 
         return res.json({

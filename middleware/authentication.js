@@ -1,6 +1,12 @@
 const JWT = require('jsonwebtoken');
 const bcrypt = require("bcryptjs");
 
+/**
+ *  @param {Object} req
+ *  @param {Object} res
+ *  @param {Function} next
+ * */
+
 const auth = (req, res, next) => {
     try {
         const { token } = req.headers;
@@ -15,6 +21,12 @@ const auth = (req, res, next) => {
     }
 }
 
+/**
+ *  @param {Object} req
+ *  @param {Object} res
+ *  @param {Function} next
+ * */
+
 const adminAuth = (req, res, next) => {
     try {
         const { token } = req.headers;
@@ -28,6 +40,11 @@ const adminAuth = (req, res, next) => {
         });
     }
 }
+
+/**
+ *  @param {String} password
+ *  @return {Promise}
+ * */
 
 const hashPassword = (password) => {
     return new Promise((resolve, reject) => {
@@ -45,13 +62,18 @@ const hashPassword = (password) => {
                     reject(err);
                     return;
                 }
-
                 // Resolve the promise with the hashed password
                 resolve(hashedPassword);
             });
         });
     });
 };
+
+/**
+ *  @param {String} plainPassword
+ *  @param {String} hashedPassword
+ *  @return {Promise}
+ * */
 
 const comparePassword = async (plainPassword, hashedPassword) => {
     try {
@@ -63,4 +85,58 @@ const comparePassword = async (plainPassword, hashedPassword) => {
     }
 };
 
-module.exports = { auth, adminAuth, hashPassword, comparePassword }
+
+/** @type {Set<String>} tokenBlacklist */
+const tokenBlacklist = new Set();
+
+/**
+ *  @param {Object} req
+ *  @param {Object} res
+ *  @param {Function} next
+ * */
+
+const verifySecessionToken = (req, res, next) => {
+    try {
+        const { token } = req.headers;
+
+        if (tokenBlacklist.has(token)) {
+            return res.status(401).json({
+                success: false,
+                massage: 'user already verified'
+            });
+        }
+        req.user = JWT.verify(token, process.env.USER_SEXRET_KEY);
+
+        setTimeout(() => {
+            tokenBlacklist.delete(token);
+        }, 1_800_000);
+
+        next();
+    } catch (error) {
+        console.log(error)
+        return res.status(401).json({
+            success: false,
+            massage: 'invalid token'
+        });
+    }
+}
+
+/**
+ *  @param {String} otp
+ *  @param {String} userOtp
+ *  @param {String} token
+ *  @return {boolean}
+ * */
+
+const verifyOTP = (otp, userOtp, token) => {
+    if (otp !== userOtp)  return false;
+
+    tokenBlacklist.add(token);
+    setTimeout(() => {
+        tokenBlacklist.delete(token);
+    },1_800_000);
+    return true;
+}
+
+
+module.exports = { auth, adminAuth, hashPassword, comparePassword, verifySecessionToken, verifyOTP }

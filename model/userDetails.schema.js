@@ -68,10 +68,6 @@ const schema = new Schema({
         required: true,
         default: { Easy: 0, Medium: 0, Hard: 0 }
     },
-    total_solve_problem: {
-        type: Number,
-        default: 0,
-    },
     language: {
         type: languageName,
         default: { java: 0, python: 0, cpp: 0, c: 0, javaScript: 0 }
@@ -86,6 +82,10 @@ const schema = new Schema({
     problem_submissions_logs: {
         type: {},
         default: {},
+    },
+    user_submissions_logs: {
+        type: [],
+        default: [],
     }
 });
 

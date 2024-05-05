@@ -1,10 +1,11 @@
 const router = require('express').Router();
-const { hashPassword, comparePassword } = require("../middleware/authentication");
+const { hashPassword, comparePassword, verifySecessionToken, verifyOTP} = require("../middleware/authentication");
 const { isValidEmail } = require('../middleware/function');
 const userModel = require('../model/usersSign.schema');
 const userDetailsModel = require('../model/userDetails.schema');
-const { createTokenInUser } = require('../middleware/token');
-
+const { createTokenInUser, createSessionToken } = require('../middleware/token');
+const { sendMail } = require('../helper/sendMail');
+const verifyUser = require('../model/tempuser.schema');
 /*  /api/user/sign-up  --> this route new user create */
 
 router.post('/sign-up', async (req, res) => {
@@ -24,6 +25,94 @@ router.post('/sign-up', async (req, res) => {
             });
         }
 
+        const sessionToken = createSessionToken({ userName, email, password });
+        const newUser = new verifyUser({ userName, email, password, sessionToken });
+        await newUser.save();
+
+        return res.status(200).json({
+            success: true,
+            sessionToken,
+        });
+
+    } catch (error) {
+        console.log('internal server Error :- ', error);
+        return res.status(500).json({
+            type: 'error',
+            message: 'internal server Error'
+        });
+    }
+});
+
+router.get('/send-otp', verifySecessionToken, async (req, res) => {
+    try {
+        const user = req.user;
+
+        const User = await verifyUser.findOne({email: user.email});
+
+        if (!User) {
+            return res.status(400).json({
+                success: false,
+                message: 'user not found'
+            });
+        }
+
+        const response = await sendMail(user.email);
+
+        if (!response.otp) {
+            return res.status(500).json({
+                success: false,
+                message: 'email ont exist'
+            });
+        }
+
+        User.otp = response.otp;
+        await User.save();
+
+        res.status(200).json({
+            success: false,
+            email: user.email
+        });
+
+    } catch (error) {
+        console.log('internal server Error :- ', error);
+        return res.status(500).json({
+            success: false,
+            message: 'internal server Error'
+        });
+    }
+});
+
+router.post('/verify_otp', verifySecessionToken, async (req, res) => {
+    try {
+        const { otp } = req.body;
+        const user = req.user;
+        const { token } = req.headers;
+        console.log('user.email', user)
+        const User = await verifyUser.findOne({email: user.email});
+
+        if (!User) {
+            return res.status(400).json({
+                success: false,
+                message: 'user not exist'
+            });
+        }
+
+        if (!User.otp) {
+            return res.status(400).json ({
+                success: false,
+                message: 'otp time expire'
+            });
+        }
+
+        if (!verifyOTP(otp, User.otp, token)) {
+            return res.status(400).json ({
+                success: false,
+                message: 'invalid otp'
+            });
+        }
+
+        const { userName, email, password} = User;
+
         const hash_password = await hashPassword(password);
 
         const newUser = await userModel.create({
@@ -39,27 +128,30 @@ router.post('/sign-up', async (req, res) => {
             problems_status: {
                 Solved: new Set(),
                 Attempted: new Set(),
-            }
+            },
+            problem_submissions_logs: {},
+            user_submissions_logs: [],
         });
+
+        await verifyUser.deleteOne({email: user.email});
 
         const userToken = createTokenInUser({ userName, _id: newUser._id });
 
         return res.status(201).json({
-            type: 'successful',
+            success: true,
             message: 'new user created',
             token: userToken,
-            userDetail: newUserDetails,
-            problemsStatus: newUserDetails.problems_status
         });
 
     } catch (error) {
         console.log('internal server Error :- ', error);
         return res.status(500).json({
-            type: 'error',
+            success: false,
             message: 'internal server Error'
         });
     }
 });
+
 
 /*  /api/user/sign-in  --> this route sign-in user */
 
